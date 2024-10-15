@@ -1,8 +1,8 @@
 //Topic 1.1 
 //Object orientation revisted
-//part seven: Levitation and abduction
+//part eight: Flying saucers and cows
 
-var flyingSaucer;
+var flyingSaucers;
 var cowManager;
 
 
@@ -302,7 +302,8 @@ function setup()
     createCanvas(1200,600);
     noStroke();
     
-    flyingSaucer = new FlyingSaucer(width/2,100);
+    flyingSaucers = [new FlyingSaucer(width/4,100), new FlyingSaucer(width * 3/4, 100)];
+    
     cowManager = new CowManager();
 
 }
@@ -318,15 +319,19 @@ function draw()
     cowManager.update();
     cowManager.draw();
 
-    flyingSaucer.hover();
-    flyingSaucer.draw();
+    for(var i = 0; i < flyingSaucers.length; i++)
+    {
+        flyingSaucers[i].hover();
+        flyingSaucers[i].draw();
     
     
-    if(flyingSaucer.beamOn)
-    {   
-        var b = flyingSaucer.getBeamBoundaries();
-        cowManager.levitateCows(b, flyingSaucer.x, flyingSaucer.y);
+        if(flyingSaucers[i].beamOn)
+        {   
+            var b = flyingSaucers[i].getBeamBoundaries();
+            cowManager.levitateCows(b, flyingSaucers[i].x, flyingSaucers[i].y);
+        }
     }
+ 
 
 }
 
