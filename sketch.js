@@ -1,9 +1,10 @@
 //Topic 1.1 
 //Object orientation revisted
-//part five: private and public members
+//part six: private variables
 
 var flyingSaucer;
-var cow;
+var cowManager;
+
 
 function FlyingSaucer(x,y)
 {
@@ -23,7 +24,7 @@ function FlyingSaucer(x,y)
     var brightnesses = [];
     
     
-    ///////////methods/////////////
+    ///////////public methods/////////////
     
     this.hover = function()
     {
@@ -137,7 +138,6 @@ function Cow(x,y)
         this.direction *= -1;    
     }
     
-   
     
     this.draw = function()
     {
@@ -173,9 +173,7 @@ function Cow(x,y)
         rect(6,-10,2,2);
 
         pop();
-        
-
-        
+    
     }
     
     this.walk = function()
@@ -187,6 +185,41 @@ function Cow(x,y)
 }
 
 
+function CowManager()
+{
+    this.cows = [];
+    this.minCows = 10;
+    
+    this.update = function()
+    {
+        if(this.cows.length < this.minCows)
+        {
+            this.cows.push(new Cow(-199, height - 100));
+        }
+        
+        for(var i = 0; i < this.cows.length; i++)
+        {
+            this.cows[i].walk();
+            
+            if(this.cows[i].x > width + 200)
+            {
+                this.cows[i].x = -200;
+            }
+            else if(this.cows[i].x < -200)
+            {
+                this.cows[i].x = width + 200;
+            }
+        }
+    }
+    
+    this.draw = function()
+    {
+        for(var i = 0; i < this.cows.length; i++)
+        {
+            this.cows[i].draw();
+        }
+    }
+}
 
 function setup()
 {
@@ -194,7 +227,7 @@ function setup()
     noStroke();
     
     flyingSaucer = new FlyingSaucer(width/2,100);
-    cow = new Cow(width/2, height - 100);
+    cowManager = new CowManager();
 
 }
 
@@ -206,9 +239,8 @@ function draw()
     fill(0,50,0);
     rect(0,height - 100, width, 100);
     
-
-    cow.walk();
-    cow.draw();
+    cowManager.update();
+    cowManager.draw();
     
     flyingSaucer.hover();
     flyingSaucer.draw();
