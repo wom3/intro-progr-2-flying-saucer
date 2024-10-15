@@ -1,51 +1,45 @@
 //Topic 1.1 
 //Object orientation revisted
-//part four: constructor functions
+//part five: private and public members
 
-var flyingSaucers;
+var flyingSaucer;
+var cow;
 
 function FlyingSaucer(x,y)
 {
+    //public
     this.x = x;
     this.y = y;
-    this.width = random(150,250);
-    this.height = random(75,125);
-    this.window_width = random(0.65,0.85),
-    this.window_height = random(0.75,1),
-    this.base_height = random(0.25,0.5),
-    this.num_lights = floor(random(5,25)),
-    this.light_inc = floor(random(5,10)),
-    this.brightnesses = [],
-    this.beamOn = false,
-
-    this.beam = function()
-    {
-        if(random() > 0.25)
-        {
-            fill(255,255,100,150);
-            beginShape();
-            vertex(this.x - 25,this.y + this.height * this.base_height * 0.5);
-            vertex(this.x + 25,this.y + this.height * this.base_height * 0.5);
-            vertex(this.x + 70,height - 100);
-            vertex(this.x - 70,height - 100);
-            endShape();
-        }
-    },
-
+    this.beamOn = false;
+    
+    //private
+    var fs_width = random(150,250);
+    var fs_height = random(75,125);
+    var window_width = random(0.65,0.85);
+    var window_height = random(0.75,1);
+    var base_height = random(0.25,0.5);
+    var num_lights = floor(random(5,25));
+    var light_inc = floor(random(5,10));
+    var brightnesses = [];
+    
+    
+    ///////////methods/////////////
+    
     this.hover = function()
     {
         this.x += random(-1,1);
-        this.y += random(-1,1);   
+        this.y += random(-1,1); 
         
-        if(this.beamOn && random() > 0.996)
-        {
-            this.beamOn = false;
-        }
-        else if(!this.beamOn && random() > 0.99)
+        if(!this.beamOn && random() > 0.995)
         {
             this.beamOn = true;
         }
+        else if(this.beamOn && random() > 0.999)
+        {
+            this.beamOn = false;
+        }
     }
+
     
     this.draw = function()
     {
@@ -53,14 +47,15 @@ function FlyingSaucer(x,y)
         {
             this.beam();
         }
-    
+        
+        
         //draw the window
         fill(175,238,238);
         arc(
             this.x,
             this.y,
-            this.width * this.window_width,
-            this.height * this.window_height,
+            fs_width * window_width,
+            fs_height * window_height,
             PI,TWO_PI);
 
         //draw the body
@@ -68,8 +63,8 @@ function FlyingSaucer(x,y)
         arc(
             this.x,
             this.y,
-            this.width,
-            this.height/2,
+            fs_width,
+            fs_height/2,
             PI,TWO_PI);
 
         //draw the base
@@ -77,55 +72,130 @@ function FlyingSaucer(x,y)
         arc(
             this.x,
             this.y,
-            this.width,
-            this.height * this.base_height,
+            fs_width,
+            fs_height * base_height,
             0,PI);
 
         //draw the lights
-        var incr = (this.width/(this.num_lights -1)); 
+        var incr = (fs_width/(num_lights -1)); 
 
-        for(var i = 0; i < this.num_lights; i++)
+        for(var i = 0; i < num_lights; i++)
         {
 
-            var x = this.x - this.width/2 + i * incr;
-            fill(this.brightnesses[i]);
+            var x = this.x - fs_width/2 + i * incr;
+            fill(brightnesses[i]);
             ellipse(
                 x,
                 this.y,
                 5,
                 5
             )
-            this.brightnesses[i] += this.light_inc;
-            if(this.brightnesses[i] > 255)
+            brightnesses[i] += light_inc;
+            if(brightnesses[i] > 255)
             {
-                this.brightnesses[i] = 100;
+                brightnesses[i] = 100;
             }
         }
+    }   
+
+    this.beam = function()
+    {
+        if(random() > 0.25)
+        {
+            fill(255,255,100,150);
+            beginShape();
+            vertex(this.x - 25,this.y + fs_height * base_height * 0.5);
+            vertex(this.x + 25,this.y + fs_height * base_height * 0.5);
+            vertex(this.x + 70,height - 100);
+            vertex(this.x - 70,height - 100);
+            endShape();
+        }
     }
-    
-    
+
     //////// setup code /////////
     
-    for(var i = 0; i < this.num_lights; i++)
+    for(var i = 0; i < num_lights; i++)
     {
-        this.brightnesses.push((i * this.light_inc * 2)%255);
+        brightnesses.push((i * light_inc * 2)%255);
     }
+
+}
+
+
+function Cow(x,y)
+{
+    //public
+    this.x = x;
+    this.y = y;
+    this.direction = random(1,2);
+    
+    //private
+    var step = 0;
+
+    if(random() > 0.5)
+    {
+        this.direction *= -1;    
+    }
+    
+   
+    
+    this.draw = function()
+    {
+        
+        push();
+        translate(this.x, this.y);
+        if(this.direction > 0)
+        {
+            scale(-1,1);
+        }
+        
+        fill(255,250,240)
+        rect(0,-10,10,5);
+        
+        //legs
+        if(step > 5)
+        {
+            rect(0,-5,2,5);
+            rect(8,-5,2,5);
+        }
+        else
+        {
+            rect(2,-5,2,5);
+            rect(6,-5,2,5);
+        }
+        
+        //head
+        rect(-4,-12,4,4);
+        
+        //markings
+        fill(0);
+        rect(4,-9,3,3);
+        rect(6,-10,2,2);
+
+        pop();
+        
+
+        
+    }
+    
+    this.walk = function()
+    {
+        this.x += this.direction;
+        step = (step + 1)%10;
+    }
+
 }
 
 
 
 function setup()
 {
-    createCanvas(800,600);
+    createCanvas(1200,600);
     noStroke();
     
-    flyingSaucers = [];
-    
-    for(var i = 0; i < 5; i++)
-    {
-        flyingSaucers.push(new FlyingSaucer(100 + i * 150, floor(random(100,200))));
-    }
-    
+    flyingSaucer = new FlyingSaucer(width/2,100);
+    cow = new Cow(width/2, height - 100);
+
 }
 
 function draw()
@@ -136,13 +206,13 @@ function draw()
     fill(0,50,0);
     rect(0,height - 100, width, 100);
     
+
+    cow.walk();
+    cow.draw();
     
-    for(var i = 0; i < flyingSaucers.length; i++)
-    {
-        flyingSaucers[i].hover();
+    flyingSaucer.hover();
+    flyingSaucer.draw();
     
-        //draw the flying saucer
-        flyingSaucers[i].draw();
-    }
 
 }
+
