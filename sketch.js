@@ -1,6 +1,6 @@
 //Topic 1.1 
 //Object orientation revisted
-//part six: private variables
+//part seven: Levitation and abduction
 
 var flyingSaucer;
 var cowManager;
@@ -22,10 +22,9 @@ function FlyingSaucer(x,y)
     var num_lights = floor(random(5,25));
     var light_inc = floor(random(5,10));
     var brightnesses = [];
-    
-    
-    ///////////public methods/////////////
-    
+    var beamWidth = 140;
+        
+
     this.hover = function()
     {
         this.x += random(-1,1);
@@ -35,7 +34,7 @@ function FlyingSaucer(x,y)
         {
             this.beamOn = true;
         }
-        else if(this.beamOn && random() > 0.999)
+        else if(this.beamOn && random() > 0.998)
         {
             this.beamOn = false;
         }
@@ -98,7 +97,7 @@ function FlyingSaucer(x,y)
             }
         }
     }   
-
+    
     this.beam = function()
     {
         if(random() > 0.25)
@@ -107,19 +106,26 @@ function FlyingSaucer(x,y)
             beginShape();
             vertex(this.x - 25,this.y + fs_height * base_height * 0.5);
             vertex(this.x + 25,this.y + fs_height * base_height * 0.5);
-            vertex(this.x + 70,height - 100);
-            vertex(this.x - 70,height - 100);
+            vertex(this.x + beamWidth/2,height - 100);
+            vertex(this.x - beamWidth/2,height - 100);
             endShape();
         }
     }
-
+    
+    this.getBeamBoundaries = function()
+    {
+        var boundaries = [];
+        boundaries.push(this.x - beamWidth/2);
+        boundaries.push(this.x + beamWidth/2);
+        return boundaries;
+    }
+    
     //////// setup code /////////
     
     for(var i = 0; i < num_lights; i++)
     {
         brightnesses.push((i * light_inc * 2)%255);
     }
-
 }
 
 
@@ -129,6 +135,9 @@ function Cow(x,y)
     this.x = x;
     this.y = y;
     this.direction = random(1,2);
+    this.flyingSaucerRef = null;
+    this.flagForDeletion = false;
+    this.isFrozen = false;
     
     //private
     var step = 0;
@@ -173,7 +182,7 @@ function Cow(x,y)
         rect(6,-10,2,2);
 
         pop();
-    
+        
     }
     
     this.walk = function()
@@ -192,24 +201,54 @@ function CowManager()
     
     this.update = function()
     {
+        //add new cows if necessary
         if(this.cows.length < this.minCows)
         {
-            this.cows.push(new Cow(-199, height - 100));
+            this.cows.push(new Cow(width+199, height - 100));
         }
         
         for(var i = 0; i < this.cows.length; i++)
         {
-            this.cows[i].walk();
             
-            if(this.cows[i].x > width + 200)
+            if(!this.cows[i].isFrozen)
             {
-                this.cows[i].x = -200;
+                if(this.cows[i].y < height - 100)
+                {
+                    //falling
+                    this.cows[i].y += 3;
+                }
+                else
+                {
+                    //regular walking
+                    this.cows[i].walk();
+
+                    if(this.cows[i].x > width + 200)
+                    {
+                        this.cows[i].x = -200;
+                    }
+                    else if(this.cows[i].x < -200)
+                    {
+                        this.cows[i].x = width + 200;
+                    }
+                }
             }
-            else if(this.cows[i].x < -200)
+            else
             {
-                this.cows[i].x = width + 200;
+                //reset for next frame
+                this.cows[i].isFrozen = false;    
             }
         }
+        
+        //remove old cows
+        for(var i = this.cows.length - 1; i >= 0; i--)
+        {
+            if(this.cows[i].flagForDeletion)
+            {
+                this.cows.splice(i,1);
+            }
+        }
+           
+        
     }
     
     this.draw = function()
@@ -219,6 +258,43 @@ function CowManager()
             this.cows[i].draw();
         }
     }
+    
+    this.checkForCows = function(x1,x2)
+    {
+        //returns all cows between the two points
+        
+        var cows = [];
+        
+        for(var i = 0; i < this.cows.length; i++)
+        {
+            if(this.cows[i].x >= x1 && this.cows[i].x <= x2)
+            {
+                cows.push(this.cows[i]);
+            }
+        }
+        
+        return cows;
+    }
+    
+    this.levitateCows = function(boundaries, x_anchor, y_cutoff)
+    {
+        var cows = this.checkForCows(boundaries[0], boundaries[1]);
+        
+        //hover up
+        for(var i = 0 ; i < cows.length; i++)
+        {
+            cows[i].x = x_anchor;
+            cows[i].y -= 1;
+            cows[i].isFrozen = true;
+            
+            if(cows[i].y < y_cutoff)
+            {
+                cows[i].flagForDeletion = true;
+            }
+        }
+
+    }
+
 }
 
 function setup()
@@ -241,10 +317,16 @@ function draw()
     
     cowManager.update();
     cowManager.draw();
-    
+
     flyingSaucer.hover();
     flyingSaucer.draw();
     
+    
+    if(flyingSaucer.beamOn)
+    {   
+        var b = flyingSaucer.getBeamBoundaries();
+        cowManager.levitateCows(b, flyingSaucer.x, flyingSaucer.y);
+    }
 
 }
 
