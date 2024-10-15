@@ -1,11 +1,21 @@
 //Topic 1.1 
 //Object orientation revisted
-//part one
+//part two: creating a flying saucer
+
+var flyingSaucer_x;
+var flyingSaucer_y;
+var flyingSaucer_width;
+var flyingSaucer_height;
 
 function setup()
 {
     createCanvas(800,600);
     noStroke();
+
+    flyingSaucer_x = 200;
+    flyingSaucer_y = 100;
+    flyingSaucer_width = 150;
+    flyingSaucer_height = 100;
 }
 
 function draw()
@@ -18,10 +28,47 @@ function draw()
     
     //draw the flying saucer
     fill(175,238,238);
-    arc(200,100,75,100,PI,TWO_PI);
+    arc(
+        flyingSaucer_x,
+        flyingSaucer_y,
+        flyingSaucer_width/2,
+        flyingSaucer_height,
+        PI, TWO_PI
+    );
     fill(150);
-    arc(200,100,150,50,PI,TWO_PI);
+    arc(
+        flyingSaucer_x,
+        flyingSaucer_y,
+        flyingSaucer_width,
+        flyingSaucer_height/2,
+        PI, TWO_PI
+    );
     fill(50);
-    arc(200,100,150,25,0,PI);
+    arc(
+        flyingSaucer_x,
+        flyingSaucer_y,
+        flyingSaucer_width,
+        flyingSaucer_height/4,
+        0, PI
+    );
+
+    // draw the lights
+
+    for(var i = 0; i < 10; i++)
+    {
+        var x = flyingSaucer_x - flyingSaucer_width/2 + i * (flyingSaucer_width/9);
+        fill(255);
+        ellipse(
+            x,
+            flyingSaucer_y,
+            5,
+            5
+        );
+    }
+
+    // hover the flying saucer
+
+    flyingSaucer_x += random(-1,1);
+    flyingSaucer_y += random(-1,1);
     
 }
